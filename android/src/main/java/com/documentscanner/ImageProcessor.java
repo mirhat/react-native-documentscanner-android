@@ -54,6 +54,10 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
+import java.time.LocalDateTime;
+import java.time.Duration;
+import java.time.Instant;
+
 /**
  * Created by allgood on 05/03/16.
  */
@@ -74,6 +78,7 @@ public class ImageProcessor extends Handler {
     private int numOfSquares = 0;
     private int numOfRectangles = 10;
     private boolean noGrayscale = false;
+    private static Instant processPictureLastTime = Instant.now();
 
     public ImageProcessor (Looper looper , Handler uiHandler , OpenNoteCameraView mainActivity, Context context) {
         super(looper);
@@ -171,6 +176,22 @@ public class ImageProcessor extends Handler {
     }
 
     public void processPicture( Mat picture ) {
+        // Custom code
+        Instant currentTime = Instant.now();
+        boolean older = Duration.between(
+            processPictureLastTime,       
+            currentTime          
+        )
+        .compareTo(                  
+            Duration.ofSeconds(5)
+        ) > 0;
+        
+        if(!older) {
+            return;
+        } else {
+            processPictureLastTime = currentTime;
+        }
+        // End Custom code
 
         Mat img = Imgcodecs.imdecode(picture, Imgcodecs.CV_LOAD_IMAGE_UNCHANGED);
         picture.release();
